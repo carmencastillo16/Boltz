@@ -1,0 +1,28 @@
+#@title Install dependencies
+#@markdown Select your runtime type. \
+#@markdown GPU runtime with a high capacity RAM is strongly recommended.
+
+runtime = "GPU(L4 or T4)" #@param ["TPU", "GPU(A100)", "GPU(L4 or T4)", "CPU"]
+
+import os
+import subprocess
+
+print('Installing dependencies... ', end='')
+dependencies = "torch torchvision torchaudio numpy hydra-core pytorch-lightning "
+dependencies += "rdkit dm-tree requests pandas types-requests einops einx fairscale "
+dependencies += "mashumaro modelcif wandb click pyyaml biopython scipy numba gemmi "
+dependencies += "scikit-learn chembl_structure_pipeline "
+dependencies += "cuequivariance_ops_cu12 cuequivariance_ops_torch_cu12 cuequivariance_torch"
+
+if runtime == "GPU(L4 or T4)":
+    precision = '32-true'
+else:
+    precision = 'bf16-true'
+
+subprocess.run("pip install ipywidgets torch torchvision torchaudio", shell=True)
+subprocess.run("git clone https://github.com/jwohlwend/boltz.git", shell=True)
+subprocess.run(f"sed -i 's/bf16-mixed/{precision}/g' /content/boltz/src/boltz/main.py", shell=True)
+subprocess.run(f"pip install {dependencies}", shell=True)
+subprocess.run("cd boltz; pip install --no-deps -e .", shell=True)
+
+print('done.')
